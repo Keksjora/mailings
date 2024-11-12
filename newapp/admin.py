@@ -3,6 +3,14 @@ from django.contrib import admin
 from .models import MailingAttempt, MailingRecipient, Message, Newsletter
 
 
+class CustomAdmin(admin.ModelAdmin):
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs  # Суперпользователи видят всех
+        return qs.filter(owner=request.user)  # Остальные только свои объекты
+
+
 @admin.register(MailingRecipient)
 class MailingRecipientAdmin(admin.ModelAdmin):
     list_display = ("id", "email", "full_name", "comment")

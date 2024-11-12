@@ -34,7 +34,7 @@ class CustomUserCreationForm(StyleFormMixin, UserCreationForm):
             "date_joined",
             "is_active",
             "token",
-        )  # Добавьте недостающие поля для исключения
+        )
 
     def clean_avatar(self):
         avatar = self.cleaned_data.get("avatar")

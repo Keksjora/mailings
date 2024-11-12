@@ -267,7 +267,7 @@ class SendNewsletterView(View):
         except Exception as e:
             print(
                 f"Ошибка обновления статистики: {e}"
-            )  # Замените на надежное логирование
+            )
 
         return HttpResponse(
             f"Рассылка завершена! Успешно: {len(successful_recipients)}, Неуспешно: {len(failed_recipients)}\nОтчеты:\n{attempt.mail_server_response}"
