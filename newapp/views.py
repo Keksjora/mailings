@@ -50,11 +50,18 @@ class MailingRecipientView(DetailView):
     context_object_name = "newapp"
 
 
-class MailingRecipientUpdateView(UpdateView):
+class MailingRecipientUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = MailingRecipient
     fields = ["email", "full_name", "comment"]
     template_name = "newapp/mailing_create.html"
     success_url = reverse_lazy("newapp:mailingrecipient_list")
+
+    def test_func(self):
+        mailing_recipient = self.get_object()
+        return self.request.user.is_authenticated and (
+            self.request.user == mailing_recipient.owner
+            or self.request.user.is_superuser
+        )
 
 
 class MailingRecipientDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
@@ -105,11 +112,18 @@ class MessageView(DetailView):
     context_object_name = "newapp"
 
 
-class MessageUpdateView(UpdateView):
+class MessageUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Message
     form_class = MessageForm
     template_name = "newapp/message_create.html"
     success_url = reverse_lazy("newapp:home")
+
+    def test_func(self):
+        message = self.get_object()
+        return self.request.user.is_authenticated and (
+            self.request.user == message.owner
+            or self.request.user.has_perm("newapp.change_message")
+        )
 
 
 class MessageDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
@@ -265,9 +279,7 @@ class SendNewsletterView(View):
             user_stats.save()
 
         except Exception as e:
-            print(
-                f"Ошибка обновления статистики: {e}"
-            )
+            print(f"Ошибка обновления статистики: {e}")
 
         return HttpResponse(
             f"Рассылка завершена! Успешно: {len(successful_recipients)}, Неуспешно: {len(failed_recipients)}\nОтчеты:\n{attempt.mail_server_response}"
